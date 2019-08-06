@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 
+// Using buttons
+
 function Counter(){
   const [number, setNumber] = useState(0);
 

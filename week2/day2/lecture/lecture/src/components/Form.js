@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 
-function Form(){
+//using forms
+
+function Form(props){
 
   const [name, setName] = useState("John Wick");
   const [status, setStatus] = useState("Where is my dog??");
@@ -18,7 +20,7 @@ function Form(){
 
   return(
     <div>
-      <h1>{name}</h1>
+      <h1>{props.name}</h1>
       <h2>{status}</h2>
 
       <form onSubmit={handleSubmit}>

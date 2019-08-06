@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 
+// passing props
 
 function Example( { name, people } ) {
   return (
