@@ -1,12 +1,18 @@
 import React from "react";
 import Apod from "./Apod";
-import DataPicker from "./DatePicker";
+import DatePicker from "./DatePicker";
+import { Route } from "react-router-dom";
+import Apods from "./Apods";
 
 const App = () => {
+  
   return(
     <div>
-      <Apod />
-      <DataPicker />
+      
+      <Route path="/apods" exact component={Apods} />
+      <Route path="/apods/:date" component={DatePicker} />
+      <Route path="/apods/:date" component={Apod} />
+
     </div>
   )
 }

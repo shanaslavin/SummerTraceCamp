@@ -1,22 +1,36 @@
 import React from "react";
 import moment from "moment";
 
-const DatePicker = () => {
+// what props shows
+// const props = {
+//   match: {},
+//   location: {},
+//   history= {}
+// }
 
-  const today = moment();
-  console.log(today);
+const DatePicker = ({ match, history }) => {
+  
+  const date = match.params.date;
+  const today = moment().format("YYYY-MM-DD");
+  const minDate = moment("1995-06-16").format("YYYY-MM-DD");
+
+  const dateHandler = (event) => {
+    const date = event.target.value;
+    history.push(`/apods/${date}`);
+  }
 
   return(
     <div>
 
       <label htmlFor="start">Start date:</label>
 
-      <input 
+      <input
+        onChange={dateHandler}
         type="date" 
         id="start"
-        value="2018-07-22"
-        min="2018-01-01" 
-        max="2018-12-31">
+        value={date}
+        min={minDate}
+        max={today}>
       </input>
 
     </div>
