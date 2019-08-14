@@ -122,3 +122,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
+
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
