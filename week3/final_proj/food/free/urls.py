@@ -5,5 +5,6 @@ from django.conf import settings
 
 urlpatterns = [
     path('google_sign_in/', views.google_sign_in),
-    path('google_call_back/', views.google_call_back),
+    path('emails/', views.get_emails),
+    # path('google_call_back/', views.google_call_back),
 ]
