@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, HttpResponse
+from django.views.generic import CreateView
 from free.serviceObjects.GoogleApi import GoogleAPI
 import pickle
 from googleapiclient.discovery import build
@@ -7,7 +8,13 @@ from google.auth.transport.requests import Request
 from food.settings import BASE_DIR
 from django.contrib.auth.decorators import login_required
 
+
 CREDENTIALS_PATH = f'{BASE_DIR}/free/serviceObjects/gmail_credentials.json'
+
+# class tagsCreateView(CreateView):
+#   model = queries
+#   form_class = tagsForm
+#   success_url = '/food/emails/'
 
 def google_sign_in(request):
   flow = Flow.from_client_secrets_file(
@@ -32,17 +39,20 @@ def google_call_back(request):
 
 @login_required(redirect_field_name='/accounts/login/')
 def get_emails(request):
+  created_events = []
   google_api = GoogleAPI(request)
   user_email = request.user.email
-  emails = google_api.get_emails(user_email)
-  if(emails.get("resultSizeEstimate") > 0):
-    messages = google_api.appending_body(emails, user_email)
-    filtered_messages = google_api.parse_for_dates(messages)
-    created_event = google_api.create_event(user_email, filtered_messages)
-    if(created_event):
-      return HttpResponse("Free food has been added to your Google Calendar!")
-    else:
-      return HttpResponse("No free food has been found")
+  queries = [google_api.query] + request.GET.get('queries', "").split(",")
+  for query in queries:
+    google_api.query = query
+    emails = google_api.get_emails(user_email)
+    if(emails.get("resultSizeEstimate") > 0):
+      messages = google_api.appending_body(emails, user_email)
+      filtered_messages = google_api.parse_for_dates(messages)
+      created_event = google_api.create_events(user_email, filtered_messages)
+      created_events.append(created_event)
+  if(any(created_events)):
+    return HttpResponse("Free food has been added to your Google Calendar!")
   else:
     return HttpResponse("No free food has been found")
 

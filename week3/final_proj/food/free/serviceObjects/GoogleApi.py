@@ -15,16 +15,18 @@ class GoogleAPI:
     def __init__(self, request):
 
         self.creds = pickle.loads(request.session['creds'])
+        self.query = 'free food'
+        self.checked_emails = []
         if(self.creds.expired):
             self.creds.refresh(Request())
             request.session['creds'] = pickle.dumps(self.creds)
 
     def get_emails(self, email):
-        week_ago = datetime.date.today() - datetime.timedelta(days=7)
         service = build('gmail', 'v1', credentials = self.creds)
         user_id = email
-        query = f'free food, in:inbox after:{week_ago}'
-        query_results = service.users().messages().list(userId = user_id, q = query).execute()
+        week_ago = datetime.date.today() - datetime.timedelta(days=7)
+        timed_query = f'{self.query} in:inbox after:{week_ago}'
+        query_results = service.users().messages().list(userId = user_id, q = timed_query).execute()
         return query_results
 
     def parse_email(self, message):
@@ -51,6 +53,11 @@ class GoogleAPI:
 
     def appending_body(self, messages, email):
         for message in messages["messages"]:
+            if message["id"] in self.checked_emails:
+                messages["messages"].remove(message)
+                continue
+            else:
+                self.checked_emails.append(message["id"])
             email_obj = self.read_email(message["id"], email)
             message["body"] = self.parse_email(email_obj)
             message["subject"] = self.get_subject(email, message["id"])
@@ -66,14 +73,16 @@ class GoogleAPI:
                 filtered_messages.append(message)
         return filtered_messages
     
-    def create_event(self, email, filtered_messages):
+    def create_events(self, email, filtered_messages):
+        created_events = []
         cal_service = build('calendar', 'v3', credentials = self.creds)
         for message in filtered_messages:
             created_event = cal_service.events().quickAdd(
                 calendarId = email,
                 text = f"{message['subject']} {message['dates'].strftime('%m/%d/%Y, %H:%M:%S')} "
             ).execute()
-        if(created_event):
+            created_events.append(created_event)
+        if(created_events):
             return True
         else:
             return False
