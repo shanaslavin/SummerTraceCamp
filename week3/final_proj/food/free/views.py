@@ -35,7 +35,15 @@ def get_emails(request):
   google_api = GoogleAPI(request)
   user_email = request.user.email
   emails = google_api.get_emails(user_email)
-  messages = google_api.appending_body(emails, user_email)
-  filtered_messages = google_api.parse_for_dates(messages)
-  google_api.create_event(user_email, filtered_messages)
-  return HttpResponse("hell0")
+  if(emails.get("resultSizeEstimate") > 0):
+    messages = google_api.appending_body(emails, user_email)
+    filtered_messages = google_api.parse_for_dates(messages)
+    created_event = google_api.create_event(user_email, filtered_messages)
+    if(created_event):
+      return HttpResponse("Free food has been added to your Google Calendar!")
+    else:
+      return HttpResponse("No free food has been found")
+  else:
+    return HttpResponse("No free food has been found")
+
+    
