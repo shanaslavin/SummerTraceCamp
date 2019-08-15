@@ -16,6 +16,7 @@ CREDENTIALS_PATH = f'{BASE_DIR}/free/serviceObjects/gmail_credentials.json'
 #   form_class = tagsForm
 #   success_url = '/food/emails/'
 
+@login_required(redirect_field_name='/accounts/login/')
 def google_sign_in(request):
   flow = Flow.from_client_secrets_file(
     CREDENTIALS_PATH, 
@@ -35,24 +36,33 @@ def google_call_back(request):
   flow.code_verifier = pickle.loads(request.session['code_verifier'])
   flow.fetch_token(code = code)
   request.session['creds'] = pickle.dumps(flow.credentials)
-  return redirect('/food/emails/')
+  return redirect("/food/add_queries/")
 
 @login_required(redirect_field_name='/accounts/login/')
 def get_emails(request):
   created_events = []
   google_api = GoogleAPI(request)
   user_email = request.user.email
-  queries = [google_api.query] + request.GET.get('queries', "").split(",")
+
+  if(request.GET.get('days') == ''):
+    days = 7
+  else:
+    days = int(request.GET.get('days'))
+  if(request.GET.get('queries') == ''):
+    queries = google_api.query
+  else:
+    queries = google_api.query + request.GET.get('queries', "").split(",")
+
   for query in queries:
     google_api.query = query
-    emails = google_api.get_emails(user_email)
+    emails = google_api.get_emails(user_email, days)
     if(emails.get("resultSizeEstimate") > 0):
       messages = google_api.appending_body(emails, user_email)
       filtered_messages = google_api.parse_for_dates(messages)
       created_event = google_api.create_events(user_email, filtered_messages)
       created_events.append(created_event)
   if(any(created_events)):
-    return HttpResponse("Free food has been added to your Google Calendar!")
+    return HttpResponse(f"Free food has been added to your Google Calendar! {created_events}")
   else:
     return HttpResponse("No free food has been found")
 

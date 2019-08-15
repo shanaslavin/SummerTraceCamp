@@ -3,14 +3,41 @@
 
 <!-- Compiled and minified JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-  
 
-<container>
+<style>
+  body {
+    background-color: rgb(153, 204, 255);
+  }
+  div.sz {
+    width: 600px;
+    margin: auto;
+  }
+</style>
+
+<div class = "sz">
   <form method = "GET" action = "/food/emails">
     {% csrf_token %}
     <h3> Add in more tags to search through!  </h3>
     <h5> Please add commas after each tag! </h5>
+    <h6>
+      Looking for networking events? Enter "networking," into your search tags!
+    </h6>
+    <h6>
+      Looking for other free events that has food? Be sure to include the key word 'free'!
+    </h6>
+    <p>The default search tags are: food, meals, breakfast, lunch, dinner, catering,
+        buffet, dessert, picnic, banquet</p>
     <input name = "queries" type = "text" />
+
+    <h3>
+      Want to look back further? 
+    </h3>
+    <h6> 
+      The default beginning search date is a week ago from today. 
+      The max amount of days is 30.
+      Please enter how many days you want to look back!
+    </h6>
+    <input name = "days" type = "number" max = "30"/>
     <button class="btn waves-effect waves-light" type="submit" name="action"> Submit </button>
   </form>
-</container>
+</div>

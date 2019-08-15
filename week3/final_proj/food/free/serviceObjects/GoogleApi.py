@@ -15,17 +15,18 @@ class GoogleAPI:
     def __init__(self, request):
 
         self.creds = pickle.loads(request.session['creds'])
-        self.query = 'free food'
+        self.query = ['free food','free meals', 'free breakfast', 'free lunch', 'free dinner', 'free catering',
+                        'free buffet', 'free dessert', 'free picnic', 'free banquet']
         self.checked_emails = []
         if(self.creds.expired):
             self.creds.refresh(Request())
             request.session['creds'] = pickle.dumps(self.creds)
 
-    def get_emails(self, email):
+    def get_emails(self, email, days):
         service = build('gmail', 'v1', credentials = self.creds)
         user_id = email
-        week_ago = datetime.date.today() - datetime.timedelta(days=7)
-        timed_query = f'{self.query} in:inbox after:{week_ago}'
+        days_ago = datetime.date.today() - datetime.timedelta(days=days)
+        timed_query = f'{self.query} in:inbox after:{days_ago}'
         query_results = service.users().messages().list(userId = user_id, q = timed_query).execute()
         return query_results
 
@@ -81,8 +82,5 @@ class GoogleAPI:
                 calendarId = email,
                 text = f"{message['subject']} {message['dates'].strftime('%m/%d/%Y, %H:%M:%S')} "
             ).execute()
-            created_events.append(created_event)
-        if(created_events):
-            return True
-        else:
-            return False
+            created_events.append(f"{message['subject']} {message['dates'].strftime('%m/%d/%Y, %H:%M:%S')}")
+        return created_events
