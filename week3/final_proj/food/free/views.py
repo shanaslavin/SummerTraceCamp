@@ -4,11 +4,14 @@ import pickle
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import Flow
 from google.auth.transport.requests import Request
+from food.settings import BASE_DIR
+from django.contrib.auth.decorators import login_required
 
+CREDENTIALS_PATH = f'{BASE_DIR}/free/serviceObjects/gmail_credentials.json'
 
 def google_sign_in(request):
   flow = Flow.from_client_secrets_file(
-    '/Users/bekkblando/Documents/github/SummerTraceCamp/week3/final_proj/food/free/serviceObjects/gmail_credentials.json', 
+    CREDENTIALS_PATH, 
     ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/gmail.readonly'],
     redirect_uri='http://localhost:8000/food/google_call_back/')
   auth_url, state = flow.authorization_url()
@@ -19,7 +22,7 @@ def google_call_back(request):
   state = request.GET.get('state')
   code = request.GET.get('code')
   flow = Flow.from_client_secrets_file(
-    '/Users/bekkblando/Documents/github/SummerTraceCamp/week3/final_proj/food/free/serviceObjects/gmail_credentials.json', 
+    CREDENTIALS_PATH, 
     ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/gmail.readonly'],
     redirect_uri='http://localhost:8000/food/google_call_back/', state = state)
   flow.code_verifier = pickle.loads(request.session['code_verifier'])
@@ -27,10 +30,12 @@ def google_call_back(request):
   request.session['creds'] = pickle.dumps(flow.credentials)
   return redirect('/food/emails/')
 
-
+@login_required(redirect_field_name='/accounts/login/')
 def get_emails(request):
   google_api = GoogleAPI(request)
   user_email = request.user.email
-  print(google_api.get_emails(user_email))
+  emails = google_api.get_emails(user_email)
+  messages = google_api.appending_body(emails, user_email)
+  filtered_messages = google_api.parse_for_dates(messages)
+  google_api.create_event(user_email, filtered_messages)
   return HttpResponse("hell0")
-  # google_api.create_event(msg_ids, user_email)
