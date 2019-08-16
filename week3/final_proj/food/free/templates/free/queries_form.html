@@ -1,13 +1,9 @@
-<!-- Compiled and minified CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+{% extends 'container.html' %}
 
-<!-- Compiled and minified JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+{% block content %}
 
 <style>
-  body {
-    background-color: rgb(153, 204, 255);
-  }
+
   div.sz {
     width: 600px;
     margin: auto;
@@ -37,7 +33,10 @@
       The max amount of days is 30.
       Please enter how many days you want to look back!
     </h6>
-    <input name = "days" type = "number" max = "30"/>
+    <input name = "days" type = "number" min = "7" max = "30"/>
     <button class="btn waves-effect waves-light" type="submit" name="action"> Submit </button>
   </form>
 </div>
+
+{% endblock %}
+

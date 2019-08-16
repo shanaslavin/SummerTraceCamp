@@ -82,5 +82,5 @@ class GoogleAPI:
                 calendarId = email,
                 text = f"{message['subject']} {message['dates'].strftime('%m/%d/%Y, %H:%M:%S')} "
             ).execute()
-            created_events.append(f"{message['subject']} {message['dates'].strftime('%m/%d/%Y, %H:%M:%S')}")
+            created_events.append({'subject': f"{message['subject']}", 'body': f"{message['body']}", 'dates': f"{message['dates'].strftime('%m/%d/%Y, %H:%M:%S')}"})
         return created_events

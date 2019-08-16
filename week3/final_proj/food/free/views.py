@@ -52,17 +52,15 @@ def get_emails(request):
     queries = google_api.query
   else:
     queries = google_api.query + request.GET.get('queries', "").split(",")
-
   for query in queries:
     google_api.query = query
     emails = google_api.get_emails(user_email, days)
     if(emails.get("resultSizeEstimate") > 0):
       messages = google_api.appending_body(emails, user_email)
       filtered_messages = google_api.parse_for_dates(messages)
-      created_event = google_api.create_events(user_email, filtered_messages)
-      created_events.append(created_event)
+      created_events = created_events + google_api.create_events(user_email, filtered_messages)
   if(any(created_events)):
-    return HttpResponse(f"Free food has been added to your Google Calendar! {created_events}")
+    return render(request, 'events_list.html', context = {"created_events": created_events})
   else:
     return HttpResponse("No free food has been found")
 

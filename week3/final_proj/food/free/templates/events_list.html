@@ -1,0 +1,36 @@
+{% extends 'container.html' %}
+
+{% block content %}
+
+<style>
+  
+  div.event {
+    width: 600px;
+    margin: auto;
+  }
+  div.center-children {
+    text-align: center;
+  }
+</style>
+
+<div class="center-children">
+  <h1> Events with Free Food </h1>
+  <h4> These events have been added to your Google Calendar! </h4>
+</div>
+
+{% for event in created_events %}
+  <div class="row">
+      <div class="event">
+        <div class="card #1a237e indigo darken-4">
+          <div class="card-content white-text">
+            <span class="card-title"> {{ event.subject }} </span>
+            <p> {{ event.body }} </p>
+            <p> {{ event.dates }} </p>
+          </div>
+      </div>
+    </div>
+  </div>
+
+{% endfor %}
+
+{% endblock %}
